@@ -48,25 +48,25 @@ library InteractiveCrowdsaleLib {
 
   	CrowdsaleLib.CrowdsaleStorage base; // base storage from CrowdsaleLib
 
-  	// List of personal caps, sorted from smallest to largest (from LinkedListLib)
-  	LinkedListLib.LinkedList capsList;
+  	// List of personal valuations, sorted from smallest to largest (from LinkedListLib)
+  	LinkedListLib.LinkedList valuationsList;
 
   	uint256 endWithdrawlTime;   // time when manual withdrawls are no longer allowed
 
-  	mapping (address => uint256) personalCaps;    // the cap that each address has submitted
+  	mapping (address => uint256) personalValuations;    // the valuation that each address has submitted
 
-  	mapping (uint256 => address[]) capAddresses;  // each address that has submitted at a certain valuation
+  	mapping (uint256 => address[]) valuationAddresses;  // each address that has submitted at a certain valuation
 
   }
 
   // Indicates when a bidder submits a bid to the crowdsale
-  event LogBidAccepted(address indexed bidder, uint256 amount, uint256 personalCap);
+  event LogBidAccepted(address indexed bidder, uint256 amount, uint256 personalValuation);
 
   // Indicates when a bidder manually withdraws their bid from the crowdsale
-  event LogBidWithdrawn(address indexed bidder, uint256 amount, uint256 personalCap);
+  event LogBidWithdrawn(address indexed bidder, uint256 amount, uint256 personalValuation);
 
   // Indicates when a bid is removed by the automated bid removal process
-  event LogBidRemoved(address indexed bidder, uint256 amount, uint256 personalCap);
+  event LogBidRemoved(address indexed bidder, uint256 amount, uint256 personalValuation);
 
   // Generic Error Msg Event
   event LogErrorMsg(uint256 amount, string Msg);
@@ -80,7 +80,7 @@ library InteractiveCrowdsaleLib {
   /// @param _owner Address of crowdsale owner
   /// @param _saleData Array of 3 item arrays such that, in each 3 element
   /// array index-0 is timestamp, index-1 is price in cents at that time,
-  /// index-2 is address purchase cap at that time, 0 if no address cap
+  /// index-2 is address purchase valuation at that time, 0 if no address valuation
   /// @param _fallbackExchangeRate Exchange rate of cents/ETH
   /// @param _capAmountInCents Total to be raised in cents
   /// @param _endTime Timestamp of sale end time
@@ -110,18 +110,18 @@ library InteractiveCrowdsaleLib {
   /// @dev Called when an address wants to submit bid to the sale
   /// @param self Stored crowdsale from crowdsale contract
   /// @param _amount amound of wei that the buyer is sending
-  /// @param _personalCap the total crowdsale valuation (wei) that the bidder is comfortable with
-  /// @param _listPredict prediction of where the cap will go in the linked list
+  /// @param _personalValuation the total crowdsale valuation (wei) that the bidder is comfortable with
+  /// @param _listPredict prediction of where the valuation will go in the linked list
   /// @return true on succesful bid
-  function submitBid(InteractiveCrowdsaleStorage storage self, uint256 _amount, uint256 _personalCap, uint256 _listPredict) public returns (bool) {
+  function submitBid(InteractiveCrowdsaleStorage storage self, uint256 _amount, uint256 _personalValuation, uint256 _listPredict) public returns (bool) {
   	require(msg.sender != self.base.owner);
   	require(self.base.validPurchase());
-  	require(self.personalCaps[msg.sender] == 0);
-  	require(_personalCap >= self.base.ownerBalance + _amount);
-  	require((_personalCap % 100000000000000000000) == 0);      // personal valuations need to be in multiples of 100 ETH
-    require(self.capsList.getAdjacent(_listPredict,NEXT) != 0);  //prediction must already be an entry in the list
+  	require(self.personalValuations[msg.sender] == 0);   //bidder can't have already bid
+  	require(_personalValuation >= self.base.ownerBalance + _amount);    // The personal valuation submitted must be greater than the current valuation plus the bid
+  	require((_personalValuation % 100000000000000000000) == 0);      // personal valuations need to be in multiples of 100 ETH
+    require(self.valuationsList.getAdjacent(_listPredict,NEXT) != 0);  // prediction must already be an entry in the list
 
-  	require((self.base.ownerBalance + _amount) <= self.base.capAmount);
+  	require((self.base.ownerBalance + _amount) <= self.base.capAmount);  // bid must not exceed the total raise cap of the sale
 
   	// if the token price increase interval has passed, update the current day and change the token price
   	if ((self.base.milestoneTimes.length > self.base.currentMilestone + 1) &&
@@ -175,20 +175,20 @@ library InteractiveCrowdsaleLib {
     require(!err);
     self.base.withdrawTokensMap[self.base.owner] = remainder;
 
-    // add the bid to the sorted caps list
+    // add the bid to the sorted valuations list
     uint256 listSpot;
-    listSpot = self.capsList.getSortedSpot(_listPredict,_personalCap,NEXT);
-    self.capsList.insert(listSpot,_personalCap,PREV);
+    listSpot = self.valuationsList.getSortedSpot(_listPredict,_personalValuation,NEXT);
+    self.valuationsList.insert(listSpot,_personalValuation,PREV);
 
-    // add the cap to the address caps mapping
-    self.personalCaps[msg.sender] = _personalCap;
+    // add the valuation to the address => valuations mapping
+    self.personalValuations[msg.sender] = _personalValuation;
 
-    // add the bidders address to the array of addresses that have submitted at the same cap
-    self.capAddresses[_personalCap].push(msg.sender);
+    // add the bidders address to the array of addresses that have submitted at the same valuation
+    self.valuationAddresses[_personalValuation].push(msg.sender);
 
-    LogBidAccepted(msg.sender, _amount-remainder, _personalCap);
+    LogBidAccepted(msg.sender, _amount-remainder, _personalValuation);
 
-    autoWithdrawBids(self);
+    autoWithdrawBids(self);    // run algorithm to remove bids with minimal personal Valuations
   }
 
 
@@ -196,15 +196,15 @@ library InteractiveCrowdsaleLib {
   /// @return true on succesful withdrawl
   function withdrawBid(InteractiveCrowdsaleStorage storage self) public returns (bool) {
   	// The sender has to have already bid on the sale
-  	require(self.personalCaps[msg.sender] > 0);
+  	require(self.personalValuations[msg.sender] > 0);
   	// cannot withdraw after compulsory withdraw period is over
   	require(now < self.endWithdrawlTime);
 
   	// Removing the entry from the linked list returns the key of the removed entry, so make sure that was succesful
-  	assert(self.capsList.remove(self.personalCaps[msg.sender]) == self.personalCaps[msg.sender]);
+  	assert(self.valuationsList.remove(self.personalValuations[msg.sender]) == self.personalValuations[msg.sender]);
 
   	// Put the sender's contributed wei into the leftoverWei mapping for later withdrawl
-  	self.base.leftoverWei[msg.sender] = self.base.hasContributed[msg.sender];
+  	self.base.leftoverWei[msg.sender] += self.base.hasContributed[msg.sender];
 
   	// subtract the bid from the balance of the owner
   	self.base.ownerBalance -= self.base.hasContributed[msg.sender];
@@ -213,84 +213,95 @@ library InteractiveCrowdsaleLib {
   	self.base.withdrawTokensMap[self.base.owner] += self.base.withdrawTokensMap[msg.sender];
   	self.base.withdrawTokensMap[msg.sender] = 0;
 
-  	for (uint256 i = 0; i < self.capAddresses[self.personalCaps[msg.sender]].length; i++ ) {
-  		if ( self.capAddresses[self.personalCaps[msg.sender]][i] == msg.sender) {
-  			self.capAddresses[self.personalCaps[msg.sender]][i] = 0;
+    // iterate through the array of addresses at a certain valuation and remove the bidder's address who is withdrawing their bid
+  	for (uint256 i = 0; i < self.valuationAddresses[self.personalValuations[msg.sender]].length; i++ ) {
+  		if ( self.valuationAddresses[self.personalValuations[msg.sender]][i] == msg.sender) {
+  			self.valuationAddresses[self.personalValuations[msg.sender]][i] = 0;
   		}
   	}
 
-	LogBidWithdrawn(msg.sender, self.base.hasContributed[msg.sender], self.personalCaps[msg.sender]);  	
+	  LogBidWithdrawn(msg.sender, self.base.hasContributed[msg.sender], self.personalValuations[msg.sender]);  	
 
-	// reset the bidder's contribution and personal cap to zero
-	self.base.hasContributed[msg.sender] = 0;
-	self.personalCaps[msg.sender] = 0;
+	  // reset the bidder's contribution and personal valuation to zero
+	  self.base.hasContributed[msg.sender] = 0;
+	  self.personalValuations[msg.sender] = 0;
   }
 
-  /// @dev function that automatically removes bids that have personal caps lower than the total sale valuation
+  /// @dev function that automatically removes bids that have personal valuations lower than the total sale valuation
   /// @return true when all withdrawls have succeeded
   function autoWithdrawBids(InteractiveCrowdsaleStorage storage self) internal returns (bool) {
   	
-  	while (self.capsList.getAdjacent(HEAD,NEXT) < self.base.ownerBalance) {
-	  	uint256 lowestCap = self.capsList.getAdjacent(HEAD,NEXT);
-	  	uint256 contributionSum;
-	  	uint256 numAddresses;
+  	while (self.valuationsList.getAdjacent(HEAD,NEXT) < self.base.ownerBalance) {
+      // the first entry in the personal valuations list is the smallest
+	  	uint256 lowestValuation = self.valuationsList.getAdjacent(HEAD,NEXT);
+	  	uint256 contributionSum;  // sum of all contributions at the lowest valuation
+	  	uint256 numAddresses;     // total addresses who have submitted at that valuation
+      address refundAddress;
 
-	  	for (uint256 i = 0; i < self.capAddresses[lowestCap].length; i++ ) {
-	  		if (self.capAddresses[lowestCap][i] != 0) {
-	  			contributionSum += self.base.hasContributed[self.capAddresses[lowestCap][i]];
+      // calculate the sum of all contributions at a valuation and the number of bidders who have submitted at that valuation
+	  	for (uint256 i = 0; i < self.valuationAddresses[lowestValuation].length; i++ ) {
+	  		if (self.valuationAddresses[lowestValuation][i] != 0) {
+	  			contributionSum += self.base.hasContributed[self.valuationAddresses[lowestValuation][i]];
 	  			numAddresses++;
 	  		}
 	  	}
 
-	  	if ((self.base.ownerBalance - contributionSum) >= lowestCap) {
-	  		for (i = 0; i < self.capAddresses[lowestCap].length; i++ ) {
-	  			if (self.capAddresses[lowestCap][i] != 0) {
+      // If removing all those bids still doesn't cause the total valuation to drop below the lowest valuation, remove all the bids and repeat
+	  	if ((self.base.ownerBalance - contributionSum) >= lowestValuation) {
+        // iterate through all the addresses at the lowest valuation and remove their bids
+	  		for (i = 0; i < self.valuationAddresses[lowestValuation].length; i++ ) {
+          // if an entry in the address array is 0, it means it was already removed, so only remove active addresses
+	  			if (self.valuationAddresses[lowestValuation][i] != 0) {
+            refundAddress = self.valuationAddresses[lowestValuation][i];  // current bidder being withdrawn and refunded
 
-		  			self.base.leftoverWei[self.capAddresses[lowestCap][i]] = self.base.hasContributed[self.capAddresses[lowestCap][i]];
+            // refund the bidder's contribution
+		  			self.base.leftoverWei[refundAddress] += self.base.hasContributed[refundAddress];
 		  			
-		  			// subtract the bid from the balance of the owner
-		  			self.base.ownerBalance -= self.base.hasContributed[self.capAddresses[lowestCap][i]];
+		  			// subtract the bid from the balance of the owner (total valuation)
+		  			self.base.ownerBalance -= self.base.hasContributed[refundAddress];
 
 		  			// return bought tokens to the owners pool and remove tokens from the bidders pool
-		  			self.base.withdrawTokensMap[self.base.owner] += self.base.withdrawTokensMap[self.capAddresses[lowestCap][i]];
-		  			self.base.withdrawTokensMap[self.capAddresses[lowestCap][i]] = 0;
+		  			self.base.withdrawTokensMap[self.base.owner] += self.base.withdrawTokensMap[refundAddress];
+		  			self.base.withdrawTokensMap[refundAddress] = 0;
 
-		  			// reset the bidder's contribution and personal cap to zero
-					self.base.hasContributed[self.capAddresses[lowestCap][i]] = 0;
-					self.personalCaps[self.capAddresses[lowestCap][i]] = 0;
+		  			// reset the bidder's contribution and personal valuation to zero
+					  self.base.hasContributed[refundAddress] = 0;
+					  self.personalValuations[refundAddress] = 0;
 
-					// remove the address from the records and remove the minimal cap from the list
-		  			self.capAddresses[lowestCap][i] = 0;
-		  			self.capsList.remove(lowestCap);
+					  // remove the address from the records and remove the minimal valuation from the list
+		  			self.valuationAddresses[lowestValuation][i] = 0;
+		  			self.valuationsList.remove(lowestValuation);
 		  		}
 	  		}
 	  	} else {
 	  		uint256 q;
 
 	  		// calculate the fraction of each minimal valuation bidders ether and tokens to refund
-	  		q = (self.base.ownerBalance*100 - lowestCap*100)/(contributionSum);
+	  		q = (self.base.ownerBalance*100 - lowestValuation*100)/(contributionSum);
 
-	  		for (i = 0; i < self.capAddresses[lowestCap].length; i++ ) {
-	  			if (self.capAddresses[lowestCap][i] != 0) {
+        // iterate through the addresses who have contributed at that valuation and refund them the correct proportion of their bid to get the lowest valuation greater than the total valuation
+	  		for (i = 0; i < self.valuationAddresses[lowestValuation].length; i++ ) {
+	  			if (self.valuationAddresses[lowestValuation][i] != 0) {
+            refundAddress = self.valuationAddresses[lowestValuation][i];
 	  				// calculate the portion that this address has to take out of their bid
-	  				uint256 refundAmount = (q*self.base.hasContributed[self.capAddresses[lowestCap][i]])/100;
+	  				uint256 refundAmount = (q*self.base.hasContributed[refundAddress])/100;
 	  				
 	  				// subtract that amount from the total valuation
 	  				self.base.ownerBalance -= refundAmount;
 
 	  				// refund that amount of wei to the address
-	  				self.base.leftoverWei[self.capAddresses[lowestCap][i]] += refundAmount;
+	  				self.base.leftoverWei[refundAddress] += refundAmount;
 
 	  				// subtract that amount the address' contribution
-	  				self.base.hasContributed[self.capAddresses[lowestCap][i]] -= refundAmount;
+	  				self.base.hasContributed[refundAddress] -= refundAmount;
 
 	  				// calculate the amount of tokens left after the refund
-	  				self.base.withdrawTokensMap[self.base.owner] += (q*(self.base.withdrawTokensMap[self.capAddresses[lowestCap][i]]))/100;
-	  				self.base.withdrawTokensMap[self.capAddresses[lowestCap][i]] = ((100-q)*(self.base.withdrawTokensMap[self.capAddresses[lowestCap][i]]))/100;
+	  				self.base.withdrawTokensMap[self.base.owner] += (q*(self.base.withdrawTokensMap[refundAddress]))/100;
+	  				self.base.withdrawTokensMap[refundAddress] = ((100-q)*(self.base.withdrawTokensMap[refundAddress]))/100;
 	  			}
 	  		}
 	  	}
-	}
+	  }
   }
 
 
