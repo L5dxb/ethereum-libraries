@@ -1,0 +1,305 @@
+{
+  "contract_name": "InteractiveCrowdsaleTestContract",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "crowdsaleActive",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "withdrawOwnerEth",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_buyer",
+          "type": "address"
+        }
+      ],
+      "name": "getContribution",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "crowdsaleEnded",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getEthRaised",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_buyer",
+          "type": "address"
+        }
+      ],
+      "name": "getLeftoverWei",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getEndTime",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "setTokens",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getTokensPerEth",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getOwner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "withdrawTokens",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "withdrawLeftoverWei",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getPercentBurn",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getStartTime",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_exchangeRate",
+          "type": "uint256"
+        }
+      ],
+      "name": "setTokenExchangeRate",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getCapAmount",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getExchangeRate",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_buyer",
+          "type": "address"
+        }
+      ],
+      "name": "getTokenPurchase",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "name": "saleData",
+          "type": "uint256[]"
+        },
+        {
+          "name": "fallbackExchangeRate",
+          "type": "uint256"
+        },
+        {
+          "name": "capAmountInCents",
+          "type": "uint256"
+        },
+        {
+          "name": "endWithdrawlTime",
+          "type": "uint256"
+        },
+        {
+          "name": "endTime",
+          "type": "uint256"
+        },
+        {
+          "name": "percentBurn",
+          "type": "uint8"
+        },
+        {
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "constructor"
+    },
+    {
+      "payable": true,
+      "type": "fallback"
+    }
+  ],
+  "unlinked_binary": "0x6060604052341561000f57600080fd5b604051610971380380610971833981016040528080519190602001805182019190602001805191906020018051919060200180519190602001805191906020018051919060200180519150505b73__InteractiveCrowdsaleLib_______________634ed4291c60008a8a8a8a8a8a8a8a6040517c010000000000000000000000000000000000000000000000000000000063ffffffff8c16028152600481018a8152600160a060020a03808b166024840152606483018990526084830188905260a4830187905260c4830186905260ff851660e484015283166101048301526101206044830190815290916101240189818151815260200191508051906020019060200280838360005b838110156101335780820151818401525b60200161011a565b505050509050019a505050505050505050505060006040518083038186803b151561015d57600080fd5b6102c65a03f4151561016e57600080fd5b5050505b50505050505050505b6107e78061018a6000396000f300606060405236156100e05763ffffffff60e060020a6000350416630b87cf1081146100e45780630c1ca1ba1461010b57806321eff7fc146101325780632367f35d1461016357806329dacb601461018a578063413100e0146101af578063439f5ac2146101e0578063559ed339146102055780636893f63f1461022c578063893d20e8146102515780638d8f2adb146102805780639fac6ddc146102a7578063bdf1211e146102ce578063c828371e146102f3578063cb7b867314610318578063d8ad1c5c14610342578063e6aa216c14610367578063f59ae82c1461038c575b5b5b005b34156100ef57600080fd5b6100f76103bd565b604051901515815260200160405180910390f35b341561011657600080fd5b6100f7610436565b604051901515815260200160405180910390f35b341561013d57600080fd5b610151600160a060020a03600435166104af565b60405190815260200160405180910390f35b341561016e57600080fd5b6100f76104ce565b604051901515815260200160405180910390f35b341561019557600080fd5b610151610547565b60405190815260200160405180910390f35b34156101ba57600080fd5b610151600160a060020a036004351661054e565b60405190815260200160405180910390f35b34156101eb57600080fd5b61015161056d565b60405190815260200160405180910390f35b341561021057600080fd5b6100f7610574565b604051901515815260200160405180910390f35b341561023757600080fd5b6101516105ed565b60405190815260200160405180910390f35b341561025c57600080fd5b6102646105f4565b604051600160a060020a03909116815260200160405180910390f35b341561028b57600080fd5b6100f7610604565b604051901515815260200160405180910390f35b34156102b257600080fd5b6100f761067d565b604051901515815260200160405180910390f35b34156102d957600080fd5b6101516106f6565b60405190815260200160405180910390f35b34156102fe57600080fd5b610151610706565b60405190815260200160405180910390f35b341561032357600080fd5b6100f760043561070d565b604051901515815260200160405180910390f35b341561034d57600080fd5b61015161078e565b60405190815260200160405180910390f35b341561037257600080fd5b610151610795565b60405190815260200160405180910390f35b341561039757600080fd5b610151600160a060020a036004351661079c565b60405190815260200160405180910390f35b600073__InteractiveCrowdsaleLib_______________630c74a3a482806040516020015260405160e060020a63ffffffff8416028152600481019190915260240160206040518083038186803b151561041657600080fd5b6102c65a03f4151561042757600080fd5b50505060405180519150505b90565b600073__InteractiveCrowdsaleLib_______________63baa2530082806040516020015260405160e060020a63ffffffff8416028152600481019190915260240160206040518083038186803b151561041657600080fd5b6102c65a03f4151561042757600080fd5b50505060405180519150505b90565b600160a060020a0381166000908152600b60205260409020545b919050565b600073__InteractiveCrowdsaleLib_______________63fc9a6f8782806040516020015260405160e060020a63ffffffff8416028152600481019190915260240160206040518083038186803b151561041657600080fd5b6102c65a03f4151561042757600080fd5b50505060405180519150505b90565b6006545b90565b600160a060020a0381166000908152600d60205260409020545b919050565b6004545b90565b600073__InteractiveCrowdsaleLib_______________63257b9db282806040516020015260405160e060020a63ffffffff8416028152600481019190915260240160206040518083038186803b151561041657600080fd5b6102c65a03f4151561042757600080fd5b50505060405180519150505b90565b6001545b90565b600054600160a060020a03165b90565b600073__InteractiveCrowdsaleLib_______________637cef2cd982806040516020015260405160e060020a63ffffffff8416028152600481019190915260240160206040518083038186803b151561041657600080fd5b6102c65a03f4151561042757600080fd5b50505060405180519150505b90565b600073__InteractiveCrowdsaleLib_______________63af7d127182806040516020015260405160e060020a63ffffffff8416028152600481019190915260240160206040518083038186803b151561041657600080fd5b6102c65a03f4151561042757600080fd5b50505060405180519150505b90565b60095462010000900460ff165b90565b6003545b90565b600073__InteractiveCrowdsaleLib_______________63a4f21cb78284816040516020015260405160e060020a63ffffffff85160281526004810192909252602482015260440160206040518083038186803b151561076c57600080fd5b6102c65a03f4151561077d57600080fd5b50505060405180519150505b919050565b6002545b90565b6005545b90565b600160a060020a0381166000908152600c60205260409020545b9190505600a165627a7a72305820cd58bd405b53148edb7ba624f9092acfe2c864e023edef60ad6c9c3bd05c01600029",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1507307693730
+}
