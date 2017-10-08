@@ -32,35 +32,19 @@ contract InteractiveCrowdsaleTestContract {
     //receivePurchase();
   }
 
-  // function receivePurchase() payable returns (bool) {
-  // 	return sale.receivePurchase(msg.value);
-  // }
+  function submitBid(uint256 _personalValuation, uint256 _listPredict) public returns (bool) {
+    return sale.submitBid(msg.value, _personalValuation, _listPredict);
+  }
 
-  // function registerUser(address _registrant) returns (bool) {
-  //   return sale.registerUser(_registrant);
-  // }
+  function withdrawBid() public returns (bool) {
+    return sale.withdrawBid();
+  }
 
-  // function registerUsers(address[] _registrants) returns (bool) {
-  //   return sale.registerUsers(_registrants);
-  // }
-
-  // function unregisterUser(address _registrant) returns (bool) {
-  //   return sale.unregisterUser(_registrant);
-  // }
-
-  // function unregisterUsers(address _registrants) returns (bool) {
-  //   return sale.unregisterUser(_registrants);
-  // }
-
-  // function isRegistered(address _registrant) constant returns (bool) {
-  //   return sale.isRegistered[_registrant];
-  // }
-
-  function withdrawTokens() returns (bool) {
+  function withdrawTokens() public returns (bool) {
     return sale.withdrawTokens();
   }
 
-  function withdrawLeftoverWei() returns (bool) {
+  function withdrawLeftoverWei() public returns (bool) {
     return sale.withdrawLeftoverWei();
   }
 
@@ -124,23 +108,15 @@ contract InteractiveCrowdsaleTestContract {
     return sale.base.leftoverWei[_buyer];
   }
 
-  // function getSaleData(uint256 timestamp) constant returns (uint256[3]) {
-  //   return sale.getSaleData(timestamp);
-  // }
+  function getSaleData(uint256 timestamp) constant returns (uint256[3]) {
+    return sale.getSaleData(timestamp);
+  }
 
-  // function getTokensSold() constant returns (uint256) {
-  //   return sale.getTokensSold();
-  // }
+  function getTokensSold() constant returns (uint256) {
+    return sale.getTokensSold();
+  }
 
   function getPercentBurn() constant returns (uint256) {
     return sale.base.percentBurn;
   }
-
-  // function getAddressCap() constant returns (uint256) {
-  //   return sale.addressCap;
-  // }
-
-  // function getNumRegistered() constant returns (uint256) {
-  //   return sale.numRegistered;
-  // }
 }

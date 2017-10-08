@@ -313,33 +313,38 @@ library InteractiveCrowdsaleLib {
     return self.base.setTokenExchangeRate(_exchangeRate);
   }
 
-  function setTokens(InteractiveCrowdsaleStorage storage self) returns (bool) {
+  function setTokens(InteractiveCrowdsaleStorage storage self) internal returns (bool) {
     return self.base.setTokens();
   }
 
-  function withdrawTokens(InteractiveCrowdsaleStorage storage self) returns (bool) {
+  function withdrawTokens(InteractiveCrowdsaleStorage storage self) internal returns (bool) {
   	require(now > self.base.endTime);
 
     return self.base.withdrawTokens();
   }
 
-  function withdrawLeftoverWei(InteractiveCrowdsaleStorage storage self) returns (bool) {
+  function withdrawLeftoverWei(InteractiveCrowdsaleStorage storage self) internal returns (bool) {
     return self.base.withdrawLeftoverWei();
   }
 
-  function withdrawOwnerEth(InteractiveCrowdsaleStorage storage self) returns (bool) {
+  function withdrawOwnerEth(InteractiveCrowdsaleStorage storage self) internal returns (bool) {
     return self.base.withdrawOwnerEth();
   }
 
-  function crowdsaleActive(InteractiveCrowdsaleStorage storage self) constant returns (bool) {
+  function crowdsaleActive(InteractiveCrowdsaleStorage storage self) internal constant returns (bool) {
     return self.base.crowdsaleActive();
   }
 
-  function crowdsaleEnded(InteractiveCrowdsaleStorage storage self) constant returns (bool) {
+  function crowdsaleEnded(InteractiveCrowdsaleStorage storage self) internal constant returns (bool) {
     return self.base.crowdsaleEnded();
   }
 
-  function validPurchase(InteractiveCrowdsaleStorage storage self) constant returns (bool) {
-    return self.base.validPurchase();
+  function getSaleData(InteractiveCrowdsaleStorage storage self, uint256 _timestamp) internal constant returns (uint256[3]) {
+    return self.base.getSaleData(_timestamp);
   }
+
+  function getTokensSold(InteractiveCrowdsaleStorage storage self) internal constant returns (uint256) {
+    return self.base.getTokensSold();
+  }
+
 }
