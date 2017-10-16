@@ -59,6 +59,24 @@ library LinkedListLib {
             return false;
         }
     }
+
+    /// @dev returns true if the node exists
+    /// @param self stored linked list from contract
+    /// @param _node a node to search for
+    function nodeExists(LinkedList storage self, uint256 _node) 
+        internal
+        constant returns (bool)
+    {
+        if (self.list[_node][PREV] == HEAD && self.list[_node][NEXT] == HEAD) {
+            if (self.list[HEAD][NEXT] == _node) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
     
     /// @dev Returns the number of elements in the list
     /// @param self stored linked list from contract
@@ -124,16 +142,18 @@ library LinkedListLib {
     /// @param _new  new node to insert
     /// @param _direction direction to insert node in
     function insert(LinkedList storage self, uint256 _node, uint256 _new, bool _direction) internal  {
-        uint256 c = self.list[_node][_direction];
-        createLink(self, _node, _new, _direction);
-        createLink(self, _new, c, _direction);
+        if(!nodeExists(self,_new)) {
+            uint256 c = self.list[_node][_direction];
+            createLink(self, _node, _new, _direction);
+            createLink(self, _new, c, _direction);
+        }
     }
     
     /// @dev removes an entry from the linked list
     /// @param self stored linked list from contract
     /// @param _node node to remove from the list
     function remove(LinkedList storage self, uint256 _node) internal returns (uint256) {
-        if ((_node == NULL) || ((self.list[_node][NEXT] == 0) && (self.list[_node][PREV] == 0) && (self.list[self.list[_node][PREV]][NEXT] != _node))) return;
+        if ((_node == NULL) || ((self.list[_node][NEXT] == 0) && (self.list[_node][PREV] == 0) && (self.list[self.list[_node][PREV]][NEXT] != _node))) { return 0; }
         createLink(self, self.list[_node][PREV], self.list[_node][NEXT], NEXT);
         delete self.list[_node][PREV];
         delete self.list[_node][NEXT];

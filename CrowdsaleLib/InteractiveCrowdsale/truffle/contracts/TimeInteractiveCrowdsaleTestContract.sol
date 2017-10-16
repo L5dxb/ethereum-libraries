@@ -6,15 +6,16 @@ pragma solidity ^0.4.15;
 *
 *****************/
 
-import "./InteractiveCrowdsaleLib.sol";
+//import "./TestCrowdsaleLib.sol";
+import "./TestInteractiveCrowdsaleLib.sol";
 import "./CrowdsaleToken.sol";
 
-contract InteractiveCrowdsaleTestContract {
-  using InteractiveCrowdsaleLib for InteractiveCrowdsaleLib.InteractiveCrowdsaleStorage;
+contract TimeInteractiveCrowdsaleTestContract {
+  using TestInteractiveCrowdsaleLib for TestInteractiveCrowdsaleLib.InteractiveCrowdsaleStorage;
 
-  InteractiveCrowdsaleLib.InteractiveCrowdsaleStorage sale;
+  TestInteractiveCrowdsaleLib.InteractiveCrowdsaleStorage sale;
 
-  function InteractiveCrowdsaleTestContract(
+  function TimeInteractiveCrowdsaleTestContract(
     address owner,
     uint256[] saleData,
     uint256 fallbackExchangeRate,
@@ -32,36 +33,36 @@ contract InteractiveCrowdsaleTestContract {
     //receivePurchase();
   }
 
-  function submitBid(uint256 _personalValuation, uint256 _listPredict) payable public returns (bool) {
-    return sale.submitBid(msg.value, _personalValuation, _listPredict);
+  function submitBid(uint256 _personalValuation, uint256 _listPredict, uint256 _currtime) payable public returns (bool) {
+    return sale.submitBid(msg.value, _personalValuation, _listPredict, _currtime);
   }
 
-  function withdrawBid() public returns (bool) {
-    return sale.withdrawBid();
+  function withdrawBid(uint256 _currtime) public returns (bool) {
+    return sale.withdrawBid(_currtime);
   }
 
-  function withdrawTokens() public returns (bool) {
-    return sale.withdrawTokens();
+  function withdrawTokens(uint256 _currtime) public returns (bool) {
+    return sale.withdrawTokens(_currtime);
   }
 
   function withdrawLeftoverWei() public returns (bool) {
     return sale.withdrawLeftoverWei();
   }
 
-  function withdrawOwnerEth() returns (bool) {
-  	return sale.withdrawOwnerEth();
+  function withdrawOwnerEth(uint256 _currtime) returns (bool) {
+  	return sale.withdrawOwnerEth(_currtime);
   }
 
-  function crowdsaleActive() constant returns (bool) {
-  	return sale.crowdsaleActive();
+  function crowdsaleActive(uint256 _currtime) constant returns (bool) {
+  	return sale.crowdsaleActive(_currtime);
   }
 
-  function crowdsaleEnded() constant returns (bool) {
-  	return sale.crowdsaleEnded();
+  function crowdsaleEnded(uint256 _currtime) constant returns (bool) {
+  	return sale.crowdsaleEnded(_currtime);
   }
 
-  function setTokenExchangeRate(uint256 _exchangeRate) returns (bool) {
-    return sale.setTokenExchangeRate(_exchangeRate);
+  function setTokenExchangeRate(uint256 _exchangeRate, uint256 _currtime) returns (bool) {
+    return sale.setTokenExchangeRate(_exchangeRate, _currtime);
   }
 
   function setTokens() returns (bool) {
@@ -96,7 +97,7 @@ contract InteractiveCrowdsaleTestContract {
     return sale.endWithdrawlTime;
   }
 
-  function getEthRaised() constant returns (uint256) {
+  function getTotalValuation() constant returns (uint256) {
     return sale.base.ownerBalance;
   }
 
@@ -118,6 +119,14 @@ contract InteractiveCrowdsaleTestContract {
 
   function isBidderAtValuation(uint256 _valuation, address _bidder) constant returns (bool) {
     return sale.isBidderAtValuation(_valuation,_bidder);
+  }
+
+  function isValuationInList(uint256 _valuation) constant returns (bool) {
+    return sale.isValuationInList(_valuation);
+  }
+
+  function getSizeOfValuations() constant returns (uint256) {
+    return sale.getSizeOfValuations();
   }
 
   function getSaleData(uint256 timestamp) constant returns (uint256[3]) {

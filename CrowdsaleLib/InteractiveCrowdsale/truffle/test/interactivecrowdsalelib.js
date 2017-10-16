@@ -1,8 +1,8 @@
-const TimeEvenDistroCrowdsaleTestContract = artifacts.require("TimeEvenDistroCrowdsaleTestContract");
+const TimeInteractiveCrowdsaleTestContract = artifacts.require("TimeInteractiveCrowdsaleTestContract");
 const CrowdsaleToken = artifacts.require("CrowdsaleToken");
 
-contract('CrowdsaleToken', function(accounts) {
-  it("should properly initialize token data", function() {
+contract('CrowdsaleToken', (accounts) => {
+  it("should properly initialize token data", async () => {
     
     const c = await CrowdsaleToken.deployed();
     const name = await c.name.call();
@@ -19,180 +19,132 @@ contract('CrowdsaleToken', function(accounts) {
 
 /*************************************************************************
 
-This version is testing the even distribution version of the sale where
-the cap per address is calculated after all the addresses have registered
-and no more registration is allowed
+
 
 **************************************************************************/
 
-// contract('TimeEvenDistroCrowdsaleTestContract', function(accounts) {
-//   it("should initialize the even crowdsale contract data", function() {
-//     var returnObj = {};
-//     var c;
+contract('TimeInteractiveCrowdsaleTestContract', (accounts) => {
+  it("should initialize the interactive crowdsale contract data", async () => {
+    const c = await TimeInteractiveCrowdsaleTestContract.deployed();
+    const owner = await c.getOwner.call();
+    const tokensPerEth = await c.getTokensPerEth.call();
+    const capAmount = await c.getCapAmount.call();
+    const startTime = await c.getStartTime.call();
+    const endTime = await c.getEndTime.call();
+    const exchangeRate = await c.getExchangeRate.call();
+    const totalValuation = await c.getTotalValuation.call();
+    const percentBurn = await c.getPercentBurn.call();
+    const endWithdrawlTime = await c.getEndWithdrawlTime.call();
 
-//     return TimeEvenDistroCrowdsaleTestContract.deployed().then(function(instance) {
-//       c = instance;
+    assert.equal(owner.valueOf(), accounts[5], "Owner should be set to accounts[5].");
+    assert.equal(tokensPerEth.valueOf(), 206, "Symbol should be set to TST.");
+    assert.equal(capAmount.valueOf(), 5.8621e+22, "capAmount should be 5.8621e+22");
+    assert.equal(startTime.valueOf(), 105, "Start time should be 105");
+    assert.equal(endTime.valueOf(),125, "end time should be 125");
+    assert.equal(exchangeRate.valueOf(),29000, "exchangeRate should be 29000");
+    assert.equal(totalValuation.valueOf(), 0, "total valuation of the crowdsale should be zero");
+    assert.equal(percentBurn.valueOf(), 50, "Percentage of Tokens to burn after the crowdsale should be 50!");
+    assert.equal(endWithdrawlTime.valueOf(), 120, "Time to end manual bid withdrawls should be 120!");
 
-//       return c.getOwner.call();
-//     }).then(function(o){
-//       returnObj.owner = o;
-//       return c.getTokensPerEth.call();
-//     }).then(function(tpe) {
-//       returnObj.tokensPerEth = tpe;
-//       return c.getCapAmount.call();
-//     }).then(function(ca){
-//       returnObj.capAmount = ca;
-//       return c.getStartTime.call();
-//     }).then(function(st){
-//       returnObj.startTime = st;
-//       return c.getEndTime.call();
-//     }).then(function(et){
-//       returnObj.endTime = et;
-//       return c.getExchangeRate.call();
-//     }).then(function(er) {
-//       returnObj.exchangeRate = er;
-//       return c.getPercentBurn.call();
-//     }).then(function(pb) {
-//       returnObj.percentBurn = pb;
-//       return c.getEthRaised.call();
-//     }).then(function(ob){
-//       returnObj.ownerBalance = ob;
-//       assert.equal(returnObj.owner.valueOf(), accounts[5], "Owner should be set to the account5");
-//       assert.equal(returnObj.tokensPerEth.valueOf(), 206, "Tokens per ETH should be 205");
-//       assert.equal(returnObj.capAmount.valueOf(), 58621000000000000000000, "capAmount should be set to 56821000000000000000000 wei");
-//       assert.equal(returnObj.startTime.valueOf(),105, "start time should be 105");
-//       assert.equal(returnObj.endTime.valueOf(),125, "end time should be 125");
-//       assert.equal(returnObj.exchangeRate.valueOf(),29000, "exchangeRate should be 29000");
-//       assert.equal(returnObj.ownerBalance.valueOf(), 0, "Amount of wei raised in the crowdsale should be zero");
-//       assert.equal(returnObj.percentBurn.valueOf(), 50, "Percentage of Tokens to burn after the crowdsale should be 50!");
-//     });
-//   });
-//   it("should deny non-owner transactions pre-crowdsale, allow user registration, and set exchange rate and address cap", function() {
-//     var c;
+  });
 
-//     return TimeEvenDistroCrowdsaleTestContract.deployed().then(function(instance) {
-//       c = instance;
 
-//       return CrowdsaleToken.deployed().then(function(instance) {
-//       t = instance;
-//       return t.transfer(c.contract.address,12000000000000000000000000,{from:accounts[5]});
-//     }).then(function(ret) {
-//       return t.balanceOf.call(c.contract.address);
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(), 12000000000000000000000000,  "crowdsale's token balance should be 20000000000000000000000000!");
-//       return c.crowdsaleActive.call(101);
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(), false, "Crowsale should not be active!");
-//       return c.crowdsaleEnded.call(101);
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(), false, "Crowsale should not be ended!");
-//       return c.withdrawTokens(103,{from:accounts[0]});
-//     }).then(function(ret) {
-//       assert.equal(ret.logs[0].args.Msg, 'Sender has no tokens to withdraw!', "should give message that token sale has not ended");
-//       return c.receivePurchase(103,{value: 40000000000000000000, from: accounts[1]});
-//     }).then(function(ret) {
-//       assert.equal(ret.logs[0].args.Msg, 'Invalid Purchase! Check send time and amount of ether.', "should give an error message since sale has not started");
-//       return c.receivePurchase(103,{value: 20000000000000000000, from: accounts[5]});
-//     }).then(function(ret) {
-//       assert.equal(ret.logs[0].args.Msg, 'Owner cannot send ether to contract', "should give an error message since sale has not started");
-//       return c.withdrawOwnerEth(104,{from: accounts[5]});
-//     }).then(function(ret) {
-//       assert.equal(ret.logs[0].args.Msg, 'Cannot withdraw owner ether until after the sale', "Should give an error that sale ether cannot be withdrawn till after the sale");
-//       return c.getContribution.call(accounts[1]);
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(),0,"accounts[1] ether contribution should be 0");
-//       return c.getTokenPurchase.call(accounts[1]);
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(), 0,"accounts[1] token balance should be 0");
-//       return c.registerUser(accounts[0],96,{from:accounts[5]});
-//     }).then(function(ret) {
-//       return c.registerUser(accounts[0],96,{from:accounts[5]});
-//     }).then(function(ret) {
-//       assert.equal(ret.logs[0].args.Msg, 'Registrant address is already registered for the sale!', "Should give error message that the user is already registered");
-//       return c.isRegistered(accounts[0]);
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(),true, "accounts[0] should be registered");
-//       return c.isRegistered(accounts[1]);
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(),false, "accounts[1] should not be registered");
-//       return c.unregisterUser(accounts[1],100,{from:accounts[5]});
-//     }).then(function(ret) {
-//       assert.equal(ret.logs[0].args.Msg, 'Registrant address not registered for the sale!', "Should give error message that the user is not registered");
-//       return c.registerUser(accounts[1],96,{from:accounts[5]});
-//     }).then(function(ret) {
-//       return c.isRegistered(accounts[1]);
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(),true, "accounts[1] should be registered");
-//       return c.unregisterUser(accounts[1],100,{from:accounts[5]});
-//     }).then(function(ret) {
-//       return c.isRegistered(accounts[1]);
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(),false, "accounts[1] should not be registered");
-//       return c.registerUser(accounts[1],99,{from:accounts[5]});
-//     }).then(function(ret) {
-//       return c.isRegistered(accounts[1]);
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(),true, "accounts[1] should be registered");
-//       return c.registerUser(accounts[2],99,{from:accounts[5]});
-//     }).then(function(ret) {
-//       return c.registerUser(accounts[3],99,{from:accounts[5]});
-//     }).then(function(ret) {
-//       return c.registerUser(accounts[4],104,{from:accounts[5]});
-//     }).then(function(ret) {
-//       assert.equal(ret.logs[0].args.Msg, 'Cannot register users within 3 days of the sale!', "Should give an error that users cannot be registered close to the sale");
-//       return c.unregisterUser(accounts[1],104,{from:accounts[5]});
-//     }).then(function(ret) {
-//       assert.equal(ret.logs[0].args.Msg, 'Cannot unregister users within 3 days of the sale!', "Should give an error that users cannot be unregistered close to the sale");
-//       return c.getNumRegistered.call();
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(),4,"Four Users should be registered!");
-//       return c.unregisterUsers([accounts[0],accounts[1],accounts[2]],101,{from:accounts[5]});
-//     }).then(function(ret) {
-//       return c.isRegistered(accounts[1]);
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(),false, "accounts[1] should not be registered");
-//       return c.getNumRegistered.call();
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(),1,"One User should be registered!");
-//       return c.registerUsers([accounts[0],accounts[1],accounts[2]],101,{from:accounts[5]});
-//     }).then(function(ret) {
-//       return c.isRegistered(accounts[1]);
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(),true, "accounts[1] should be registered");
-//       return c.getNumRegistered.call();
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(),4,"Four Users should be registered!");
-//       return c.setTokenExchangeRate(30000,101, {from:accounts[5]});
-//     }).then(function(ret) {
-//       assert.equal(ret.logs[0].args.Msg, 'Owner can only set the exchange rate once up to three days before the sale!', "Should give an error message that timing for setting the exchange rate is wrong.");
-//       return c.setTokenExchangeRate(30000,104, {from:accounts[5]});
-//     }).then(function(ret) {
-//       assert.equal(ret.logs[1].args.Msg, "Owner has sent the exchange Rate and tokens bought per ETH!", "Should give success message that the exchange rate was set.");
-//       assert.equal(ret.logs[0].args.Msg, "Address cap was Calculated!", "Should give success message that the address cap was calculated");
-//       return c.setTokenExchangeRate(30000,101, {from:accounts[5]});
-//     }).then(function(ret) {
-//       assert.equal(ret.logs[0].args.Msg, 'Owner can only set the exchange rate once up to three days before the sale!', "Should give an error message that timing for setting the exchange rate is wrong.");
-//       return c.getExchangeRate.call();
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(), 30000, "exchangeRate should have been set to 30000!");
-//       return c.getTokensPerEth.call();
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(), 213, "tokensPerEth should have been set to 213!");
-//       return c.getAddressCap.call();
-//     }).then(function(ret) {
-//       assert.equal(ret.valueOf(), 14655250000000000000000, "Address cap should have been calculated to correct number!");
-//       return c.withdrawOwnerEth(104, {from:accounts[5]});
-//     }).then(function(ret) {
-//       assert.equal(ret.logs[0].args.Msg, "Cannot withdraw owner ether until after the sale", "Should give error message that the owner cannot withdraw any ETH yet");
-//       return c.withdrawTokens(104, {from:accounts[5]});
-//     }).then(function(ret) {
-//       assert.equal(ret.logs[0].args.Msg, "Owner cannot withdraw extra tokens until after the sale!", "Should give error message that the owner cannot withdraw any extra tokens yet");
-//       return c.withdrawLeftoverWei({from:accounts[0]});
-//     }).then(function(ret) {
-//       assert.equal(ret.logs[0].args.Msg, 'Sender has no extra wei to withdraw!', "should give message that the sender cannot withdraw any wei");
-//     });
-//   });
-//   });
+  it("should deny non-owner transactions pre-crowdsale, set exchange rate", async () => {
+    const c = await TimeInteractiveCrowdsaleTestContract.deployed();
+
+    const t = await CrowdsaleToken.deployed();
+
+    await t.transfer(c.contract.address,12000000000000000000000000,{from:accounts[5]});
+    var tokenbalance = await t.balanceOf.call(c.contract.address);
+    assert.equal(tokenbalance.valueOf(), 12000000000000000000000000,  "crowdsale's token balance should be 20000000000000000000000000!");
+
+    var exch_succ = await c.setTokenExchangeRate(30000,103, {from:accounts[5]});
+    assert.equal(exch_succ.logs[0].args.Msg, "Owner has sent the exchange Rate and tokens bought per ETH!", "Should give success message that the exchange rate was set.");
+      
+    exch_succ = await c.setTokenExchangeRate(30000,101, {from:accounts[5]});
+    assert.equal(exch_succ.logs[0].args.Msg, 'Owner can only set the exchange rate once up to three days before the sale!', "Should give an error message that timing for setting the exchange rate is wrong.");
+    
+    var exchange = await c.getExchangeRate.call();
+    assert.equal(exchange.valueOf(), 30000, "exchangeRate should have been set to 30000!");
+
+    var tokensPerEth = await c.getTokensPerEth.call();
+    assert.equal(tokensPerEth.valueOf(), 213, "tokensPerEth should have been set to 213!");
+
+    ret = await c.getTokenPurchase.call(accounts[0]);
+    assert.equal(ret.valueOf(), 0, "accounts0 token purchase should be 0!");
+
+  });
+
+  it("should accept bids during the sale, place them in a sorted list, and automatically remove minimal personal valuations", async () => {
+    const c = await TimeInteractiveCrowdsaleTestContract.deployed();    
+
+    await c.submitBid(1e22,0, 106, {from:accounts[0], value: 1e20});
+
+    var token_purchase = await c.getTokenPurchase.call(accounts[0]);
+    assert.equal(token_purchase.valueOf(), 2.13e22, "accounts0 token purchase should be 2.13e22!");
+
+    var valuation = await c.getPersonalValuation.call(accounts[0]);
+    assert.equal(valuation.valueOf(), 1e22, "accounts[0]'s personal valuation should be 1e22");
+
+    var atVal = await c.isBidderAtValuation.call(1e22,accounts[0]);
+    assert.equal(atVal,true, "accounts[0] should be listed at the 1e22 personal valuation");
+
+    var totalVal = await c.getTotalValuation.call();
+    assert.equal(totalVal.valueOf(),1e20, "The total valuation of the sale should be 1e20");
+
+    await c.submitBid(2e22,0, 106, {from:accounts[1], value: 5e21});
+
+    token_purchase = await c.getTokenPurchase.call(accounts[1]);
+    assert.equal(token_purchase.valueOf(), 1.065E24, "accounts1 token purchase should be 1.065E24!");
+
+    valuation = await c.getPersonalValuation.call(accounts[1]);
+    assert.equal(valuation.valueOf(), 2e22, "accounts[1]'s personal valuation should be 2e22");
+
+    atVal = await c.isBidderAtValuation.call(2e22,accounts[1]);
+    assert.equal(atVal,true, "accounts[1] should be listed at the 2e22 personal valuation");
+
+    totalVal = await c.getTotalValuation.call();
+    assert.equal(totalVal.valueOf(),5.1e21, "The total valuation of the sale should be 5.1e21");
+
+    valuation = await c.getPersonalValuation.call(accounts[0]);
+    assert.equal(valuation.valueOf(), 1e22, "accounts[0]'s personal valuation should be 1e22");
+    atVal = await c.isBidderAtValuation.call(1e22,accounts[0]);
+    assert.equal(atVal,true, "accounts[0] should be listed at the 1e22 personal valuation");
+
+    await c.submitBid(2e22,0, 107, {from:accounts[2], value: 6e21});
+
+    valuation = await c.getPersonalValuation.call(accounts[2]);
+    assert.equal(valuation.valueOf(), 2e22, "accounts[2]'s personal valuation should be 2e22");
+
+    atVal = await c.isBidderAtValuation.call(2e22,accounts[2]);
+    assert.equal(atVal,true, "accounts[2] should be listed at the 2e22 personal valuation");
+
+    totalVal = await c.getTotalValuation.call();
+    assert.equal(totalVal.valueOf(),1.1e22, "The total valuation of the sale should be 1.1e22");
+
+    valuation = await c.getPersonalValuation.call(accounts[0]);
+    assert.equal(valuation.valueOf(), 0, "accounts[0]'s personal valuation should be 0");
+    atVal = await c.isBidderAtValuation.call(1e22,accounts[0]);
+    assert.equal(atVal,false, "accounts[0] should have been removed from the 1e22 personal valuation");
+
+    // var inList = c.isValuationInList.call(2e22);
+    // assert.equal(inList.valueOf(),true, "2e22 valuation should be in the list!");
+    var numListElements = c.getSizeOfValuations.call();
+    assert.equal(numListElements.valueOf(),1, "There should only be one node in the linked list");
+
+    await c.submitBid(2.5e22,0, 107, {from:accounts[3], value: 2e21});
+
+    valuation = await c.getPersonalValuation.call(accounts[3]);
+    assert.equal(valuation.valueOf(), 2.5e22, "accounts[3]'s personal valuation should be 2.5e22");
+
+    atVal = await c.isBidderAtValuation.call(2.5e22,accounts[3]);
+    assert.equal(atVal,true, "accounts[3] should be listed at the 2.5e22 personal valuation");
+
+    totalVal = await c.getTotalValuation.call();
+    assert.equal(totalVal.valueOf(),1.3e22, "The total valuation of the sale should be 1.1e22");
+  });
+
+});
 
 //   it("should deny invalid payments during the sale and accept payments that are reflected in token balance", function() {
 //     var c;

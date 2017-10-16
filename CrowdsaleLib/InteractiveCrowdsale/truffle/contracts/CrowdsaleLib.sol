@@ -151,7 +151,7 @@ library CrowdsaleLib {
   /// @dev function to check if a purchase is valid
   /// @param self Stored crowdsale from crowdsale contract
   /// @return true if the transaction can buy tokens
-  function validPurchase(CrowdsaleStorage storage self) internal constant returns (bool) {
+  function validPurchase(CrowdsaleStorage storage self) internal returns (bool) {
     bool nonZeroPurchase = msg.value != 0;
     if (crowdsaleActive(self) && nonZeroPurchase) {
       return true;

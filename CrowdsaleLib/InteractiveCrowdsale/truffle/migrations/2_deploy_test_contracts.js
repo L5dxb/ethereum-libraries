@@ -16,13 +16,13 @@ module.exports = function(deployer, network, accounts) {
   deployer.deploy(Array256Lib, {overwrite: false});
   deployer.link(BasicMathLib, TokenLib);
   deployer.deploy(TokenLib, {overwrite: false});
-  deployer.link(BasicMathLib,CrowdsaleLib);
-  deployer.link(TokenLib,CrowdsaleLib);
-  deployer.deploy(CrowdsaleLib, {overwrite: false});
-  deployer.link(BasicMathLib,InteractiveCrowdsaleLib);
-  deployer.link(TokenLib,InteractiveCrowdsaleLib);
-  deployer.link(CrowdsaleLib,InteractiveCrowdsaleLib);
-  deployer.deploy(InteractiveCrowdsaleLib, {overwrite:false});
+  // deployer.link(BasicMathLib,CrowdsaleLib);
+  // deployer.link(TokenLib,CrowdsaleLib);
+  // deployer.deploy(CrowdsaleLib, {overwrite: false});
+  // deployer.link(BasicMathLib,InteractiveCrowdsaleLib);
+  // deployer.link(TokenLib,InteractiveCrowdsaleLib);
+  // deployer.link(CrowdsaleLib,InteractiveCrowdsaleLib);
+  // deployer.deploy(InteractiveCrowdsaleLib, {overwrite:false});
 
   if(network == "development"){
     deployer.link(BasicMathLib,TestCrowdsaleLib);
@@ -38,9 +38,8 @@ module.exports = function(deployer, network, accounts) {
     deployer.deploy(CrowdsaleToken, accounts[5], "Tester Token", "TST", 18, 20000000000000000000000000, false, {from:accounts[5]}).then(function() {
       // configured to set the token price to $1.41, with a periodic increase in the address cap by 250%
       var purchaseData =[105,141,100,
-                         110,141,250,
-                         115,141,625];
-      return deployer.deploy(TimeInteractiveCrowdsaleTestContract, accounts[5], 100, purchaseData, 29000, 1700000000, 125, 50, 50000, false, CrowdsaleToken.address,{from:accounts[5]});
+                         115,200,100];
+      return deployer.deploy(TimeInteractiveCrowdsaleTestContract, accounts[5], purchaseData, 29000, 1700000000, 120, 125, 50, CrowdsaleToken.address,{from:accounts[5]});
     });
   }
 };

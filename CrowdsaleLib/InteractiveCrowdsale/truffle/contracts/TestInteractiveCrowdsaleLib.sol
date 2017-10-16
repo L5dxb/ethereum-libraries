@@ -31,13 +31,13 @@ pragma solidity ^0.4.15;
 
 import "./BasicMathLib.sol";
 import "./TokenLib.sol";
-import "./CrowdsaleLib.sol";
+import "./TestCrowdsaleLib.sol";
 import "./LinkedListLib.sol";
 
-library InteractiveCrowdsaleLib {
+library TestInteractiveCrowdsaleLib {
   using BasicMathLib for uint256;
   using LinkedListLib for LinkedListLib.LinkedList;
-  using CrowdsaleLib for CrowdsaleLib.CrowdsaleStorage;
+  using TestCrowdsaleLib for TestCrowdsaleLib.CrowdsaleStorage;
 
   uint256 constant NULL = 0;
   uint256 constant HEAD = 0;
@@ -46,7 +46,7 @@ library InteractiveCrowdsaleLib {
 
   struct InteractiveCrowdsaleStorage {
 
-  	CrowdsaleLib.CrowdsaleStorage base; // base storage from CrowdsaleLib
+  	TestCrowdsaleLib.CrowdsaleStorage base; // base storage from CrowdsaleLib
 
   	// List of personal valuations, sorted from smallest to largest (from LinkedListLib)
   	LinkedListLib.LinkedList valuationsList;
@@ -66,7 +66,7 @@ library InteractiveCrowdsaleLib {
   event LogBidWithdrawn(address indexed bidder, uint256 amount, uint256 personalValuation);
 
   // Indicates when a bid is removed by the automated bid removal process
-  event LogBidRemoved(address indexed bidder, uint256 amount, uint256 personalValuation);
+  event LogBidRemoved(address indexed bidder, uint256 personalValuation);
 
   // Generic Error Msg Event
   event LogErrorMsg(uint256 amount, string Msg);
@@ -114,9 +114,9 @@ library InteractiveCrowdsaleLib {
   /// @param _personalValuation the total crowdsale valuation (wei) that the bidder is comfortable with
   /// @param _listPredict prediction of where the valuation will go in the linked list
   /// @return true on succesful bid
-  function submitBid(InteractiveCrowdsaleStorage storage self, uint256 _amount, uint256 _personalValuation, uint256 _listPredict) returns (bool) {
+  function submitBid(InteractiveCrowdsaleStorage storage self, uint256 _amount, uint256 _personalValuation, uint256 _listPredict, uint256 _currtime) returns (bool) {
   	require(msg.sender != self.base.owner);
-  	require(self.base.validPurchase());
+  	require(self.base.validPurchase(_currtime));
   	require(self.personalValuations[msg.sender] == 0);   // bidder can't have already bid
   	require(_personalValuation >= self.base.ownerBalance + _amount);    // The personal valuation submitted must be greater than the current valuation plus the bid
   	require((_personalValuation % 100000000000000000000) == 0);      // personal valuations need to be in multiples of 100 ETH
@@ -124,14 +124,12 @@ library InteractiveCrowdsaleLib {
 
   	require((self.base.ownerBalance + _amount) <= self.base.capAmount);  // bid must not exceed the total raise cap of the sale
 
-    LogErrorMsg(1010, "ERROR");
-
   	// if the token price increase interval has passed, update the current day and change the token price
   	if ((self.base.milestoneTimes.length > self.base.currentMilestone + 1) &&
-        (now > self.base.milestoneTimes[self.base.currentMilestone + 1]))
+        (_currtime > self.base.milestoneTimes[self.base.currentMilestone + 1]))
     {
         while((self.base.milestoneTimes.length > self.base.currentMilestone + 1) &&
-              (now > self.base.milestoneTimes[self.base.currentMilestone + 1]))
+              (_currtime > self.base.milestoneTimes[self.base.currentMilestone + 1]))
         {
           self.base.currentMilestone += 1;
         }
@@ -183,6 +181,8 @@ library InteractiveCrowdsaleLib {
     // add the bid to the sorted valuations list
     uint256 listSpot;
     listSpot = self.valuationsList.getSortedSpot(_listPredict,_personalValuation,NEXT);
+    LogErrorMsg(listSpot, "SPOT");
+
     self.valuationsList.insert(listSpot,_personalValuation,PREV);
 
     // add the valuation to the address => valuations mapping
@@ -199,11 +199,11 @@ library InteractiveCrowdsaleLib {
 
   /// @dev Called when an address wants to manually withdraw their bid from the sale. puts their wei in the LeftoverWei mapping
   /// @return true on succesful withdrawl
-  function withdrawBid(InteractiveCrowdsaleStorage storage self) public returns (bool) {
+  function withdrawBid(InteractiveCrowdsaleStorage storage self, uint256 _currtime) public returns (bool) {
   	// The sender has to have already bid on the sale
   	require(self.personalValuations[msg.sender] > 0);
   	// cannot withdraw after compulsory withdraw period is over
-  	require(now < self.endWithdrawlTime);
+  	require(_currtime < self.endWithdrawlTime);
 
   	// Removing the entry from the linked list returns the key of the removed entry, so make sure that was succesful
   	assert(self.valuationsList.remove(self.personalValuations[msg.sender]) == self.personalValuations[msg.sender]);
@@ -275,7 +275,9 @@ library InteractiveCrowdsaleLib {
 
 					  // remove the address from the records and remove the minimal valuation from the list
 		  			self.valuationAddresses[lowestValuation][i] = 0;
-		  			self.valuationsList.remove(lowestValuation);
+		  			require(self.valuationsList.remove(lowestValuation) != 0);
+
+            LogBidRemoved(refundAddress, lowestValuation);
 		  		}
 	  		}
 	  	} else {
@@ -307,6 +309,7 @@ library InteractiveCrowdsaleLib {
 	  		}
 	  	}
 	  }
+    return true;
   }
 
 
@@ -314,34 +317,34 @@ library InteractiveCrowdsaleLib {
 
    /*Functions "inherited" from CrowdsaleLib library*/
 
-  function setTokenExchangeRate(InteractiveCrowdsaleStorage storage self, uint256 _exchangeRate) returns (bool) {
-    return self.base.setTokenExchangeRate(_exchangeRate);
+  function setTokenExchangeRate(InteractiveCrowdsaleStorage storage self, uint256 _exchangeRate, uint256 _currtime) returns (bool) {
+    return self.base.setTokenExchangeRate(_exchangeRate, _currtime);
   }
 
   function setTokens(InteractiveCrowdsaleStorage storage self) internal returns (bool) {
     return self.base.setTokens();
   }
 
-  function withdrawTokens(InteractiveCrowdsaleStorage storage self) internal returns (bool) {
-  	require(now > self.base.endTime);
+  function withdrawTokens(InteractiveCrowdsaleStorage storage self, uint256 _currtime) internal returns (bool) {
+  	require(_currtime > self.base.endTime);
 
-    return self.base.withdrawTokens();
+    return self.base.withdrawTokens(_currtime);
   }
 
   function withdrawLeftoverWei(InteractiveCrowdsaleStorage storage self) internal returns (bool) {
     return self.base.withdrawLeftoverWei();
   }
 
-  function withdrawOwnerEth(InteractiveCrowdsaleStorage storage self) internal returns (bool) {
-    return self.base.withdrawOwnerEth();
+  function withdrawOwnerEth(InteractiveCrowdsaleStorage storage self, uint256 _currtime) internal returns (bool) {
+    return self.base.withdrawOwnerEth(_currtime);
   }
 
-  function crowdsaleActive(InteractiveCrowdsaleStorage storage self) internal constant returns (bool) {
-    return self.base.crowdsaleActive();
+  function crowdsaleActive(InteractiveCrowdsaleStorage storage self, uint256 _currtime) internal constant returns (bool) {
+    return self.base.crowdsaleActive(_currtime);
   }
 
-  function crowdsaleEnded(InteractiveCrowdsaleStorage storage self) internal constant returns (bool) {
-    return self.base.crowdsaleEnded();
+  function crowdsaleEnded(InteractiveCrowdsaleStorage storage self, uint256 _currtime) internal constant returns (bool) {
+    return self.base.crowdsaleEnded(_currtime);
   }
 
   function getPersonalValuation(InteractiveCrowdsaleStorage storage self, address _bidder) internal constant returns (uint256) {
@@ -356,6 +359,14 @@ library InteractiveCrowdsaleLib {
     }
 
     return false;
+  }
+
+  function isValuationInList(InteractiveCrowdsaleStorage storage self, uint256 _valuation) internal constant returns (bool) {
+    return self.valuationsList.nodeExists(_valuation);
+  }
+
+  function getSizeOfValuations(InteractiveCrowdsaleStorage storage self) internal constant returns (uint256) {
+    return self.valuationsList.sizeOf();
   }
 
   function getSaleData(InteractiveCrowdsaleStorage storage self, uint256 _timestamp) internal constant returns (uint256[3]) {

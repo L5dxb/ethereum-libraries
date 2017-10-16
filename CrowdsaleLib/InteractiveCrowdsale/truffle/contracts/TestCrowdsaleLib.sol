@@ -78,7 +78,7 @@ library TestCrowdsaleLib {
   /// @param self Stored crowdsale from crowdsale contract
   function init(CrowdsaleStorage storage self,
                 address _owner,
-                uint256 _currtime,
+                //uint256 _currtime,
                 uint256[] _saleData,
                 uint256 _fallbackExchangeRate,
                 uint256 _capAmountInCents,
@@ -90,7 +90,7 @@ library TestCrowdsaleLib {
   	require(self.owner == 0);
     require(_saleData.length > 0);
     require((_saleData.length%3) == 0);
-    require(_saleData[0] > (_currtime + 3));
+    //require(_saleData[0] > (_currtime + 3));
     require(_endTime > _saleData[0]);
     require(_capAmountInCents > 0);
     require(_owner > 0);
