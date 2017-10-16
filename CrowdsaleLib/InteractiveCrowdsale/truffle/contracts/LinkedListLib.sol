@@ -74,7 +74,7 @@ library LinkedListLib {
                 return false;
             }
         } else {
-            return false;
+            return true;
         }
     }
     

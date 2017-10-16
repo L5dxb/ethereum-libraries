@@ -127,11 +127,6 @@ contract('TimeInteractiveCrowdsaleTestContract', (accounts) => {
     atVal = await c.isBidderAtValuation.call(1e22,accounts[0]);
     assert.equal(atVal,false, "accounts[0] should have been removed from the 1e22 personal valuation");
 
-    // var inList = c.isValuationInList.call(2e22);
-    // assert.equal(inList.valueOf(),true, "2e22 valuation should be in the list!");
-    var numListElements = c.getSizeOfValuations.call();
-    assert.equal(numListElements.valueOf(),1, "There should only be one node in the linked list");
-
     await c.submitBid(2.5e22,0, 107, {from:accounts[3], value: 2e21});
 
     valuation = await c.getPersonalValuation.call(accounts[3]);
