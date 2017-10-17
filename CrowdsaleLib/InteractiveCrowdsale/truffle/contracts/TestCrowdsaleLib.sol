@@ -44,7 +44,7 @@ library TestCrowdsaleLib {
   using BasicMathLib for uint256;
 
   struct CrowdsaleStorage {
-  	address owner;     //owner of the crowdsale
+    address owner;     //owner of the crowdsale
 
     uint256 tokensPerEth;  //number of tokens received per ether
     uint256 capAmount; //Maximum amount to be raised in wei
@@ -61,11 +61,11 @@ library TestCrowdsaleLib {
     bool rateSet;
 
     mapping (uint256 => uint256[2]) saleData;
-  	mapping (address => uint256) hasContributed;  //shows how much wei an address has contributed
-  	mapping (address => uint256) withdrawTokensMap;  //For token withdraw function, maps a user address to the amount of tokens they can withdraw
+    mapping (address => uint256) hasContributed;  //shows how much wei an address has contributed
+    mapping (address => uint256) withdrawTokensMap;  //For token withdraw function, maps a user address to the amount of tokens they can withdraw
     mapping (address => uint256) leftoverWei;       // any leftover wei that buyers contributed that didn't add up to a whole token amount
 
-  	CrowdsaleToken token;
+    CrowdsaleToken token;
   }
 
   event LogTokensWithdrawn(address indexed _bidder, uint256 Amount);      // Indicates when an address has withdrawn their supply of tokens
@@ -86,8 +86,8 @@ library TestCrowdsaleLib {
                 uint8 _percentBurn,
                 CrowdsaleToken _token)
   {
-  	require(self.capAmount == 0);
-  	require(self.owner == 0);
+    require(self.capAmount == 0);
+    require(self.owner == 0);
     require(_saleData.length > 0);
     require((_saleData.length%3) == 0);
     //require(_saleData[0] > (_currtime + 3));
@@ -122,14 +122,14 @@ library TestCrowdsaleLib {
   /// @param self Stored crowdsale from crowdsale contract
   /// @return success
   function crowdsaleActive(CrowdsaleStorage storage self, uint256 currtime) constant returns (bool) {
-  	return (currtime >= self.startTime && currtime <= self.endTime);
+    return (currtime >= self.startTime && currtime <= self.endTime);
   }
 
   /// @dev function to check if the crowdsale has ended
   /// @param self Stored crowdsale from crowdsale contract
   /// @return success
   function crowdsaleEnded(CrowdsaleStorage storage self, uint256 currtime) constant returns (bool) {
-  	return currtime > self.endTime;
+    return currtime > self.endTime;
   }
 
   /// @dev function to check if a purchase is valid

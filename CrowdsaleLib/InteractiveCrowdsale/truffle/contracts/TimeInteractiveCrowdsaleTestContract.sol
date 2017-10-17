@@ -121,14 +121,6 @@ contract TimeInteractiveCrowdsaleTestContract {
     return sale.isBidderAtValuation(_valuation,_bidder);
   }
 
-  function isValuationInList(uint256 _valuation) constant returns (bool) {
-    return sale.isValuationInList(_valuation);
-  }
-
-  function getSizeOfValuations() constant returns (uint256) {
-    return sale.getSizeOfValuations();
-  }
-
   function getSaleData(uint256 timestamp) constant returns (uint256[3]) {
     return sale.getSaleData(timestamp);
   }

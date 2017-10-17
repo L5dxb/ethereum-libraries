@@ -96,7 +96,7 @@ contract InteractiveCrowdsaleTestContract {
     return sale.endWithdrawlTime;
   }
 
-  function getEthRaised() constant returns (uint256) {
+  function getTotalValuation() constant returns (uint256) {
     return sale.base.ownerBalance;
   }
 

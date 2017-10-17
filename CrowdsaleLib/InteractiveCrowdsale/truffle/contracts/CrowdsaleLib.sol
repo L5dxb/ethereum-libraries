@@ -36,12 +36,12 @@ library CrowdsaleLib {
   using BasicMathLib for uint256;
 
   struct CrowdsaleStorage {
-  	address owner;     //owner of the crowdsale
+    address owner;     //owner of the crowdsale
 
-  	uint256 tokensPerEth;  //number of tokens received per ether
-  	uint256 capAmount; //Maximum amount to be raised in wei
-  	uint256 startTime; //ICO start time, timestamp
-  	uint256 endTime; //ICO end time, timestamp automatically calculated
+    uint256 tokensPerEth;  //number of tokens received per ether
+    uint256 capAmount; //Maximum amount to be raised in wei
+    uint256 startTime; //ICO start time, timestamp
+    uint256 endTime; //ICO end time, timestamp automatically calculated
     uint256 exchangeRate; //cents/ETH exchange rate at the time of the sale
     uint256 ownerBalance; //owner wei Balance
     uint256 startingTokenBalance; //initial amount of tokens for sale
@@ -56,15 +56,15 @@ library CrowdsaleLib {
     mapping (uint256 => uint256[2]) saleData;
 
     //shows how much wei an address has contributed
-  	mapping (address => uint256) hasContributed;
+    mapping (address => uint256) hasContributed;
 
     //For token withdraw function, maps a user address to the amount of tokens they can withdraw
-  	mapping (address => uint256) withdrawTokensMap;
+    mapping (address => uint256) withdrawTokensMap;
 
     // any leftover wei that buyers contributed that didn't add up to a whole token amount
     mapping (address => uint256) leftoverWei;
 
-  	CrowdsaleToken token; //token being sold
+    CrowdsaleToken token; //token being sold
   }
 
   // Indicates when an address has withdrawn their supply of tokens
@@ -102,8 +102,8 @@ library CrowdsaleLib {
                 uint8 _percentBurn,
                 CrowdsaleToken _token)
   {
-  	require(self.capAmount == 0);
-  	require(self.owner == 0);
+    require(self.capAmount == 0);
+    require(self.owner == 0);
     require(_saleData.length > 0);
     require((_saleData.length%3) == 0);
     require(_saleData[0] > (now + 3 days));
@@ -138,14 +138,14 @@ library CrowdsaleLib {
   /// @param self Stored crowdsale from crowdsale contract
   /// @return success
   function crowdsaleActive(CrowdsaleStorage storage self) constant returns (bool) {
-  	return (now >= self.startTime && now <= self.endTime);
+    return (now >= self.startTime && now <= self.endTime);
   }
 
   /// @dev function to check if the crowdsale has ended
   /// @param self Stored crowdsale from crowdsale contract
   /// @return success
   function crowdsaleEnded(CrowdsaleStorage storage self) constant returns (bool) {
-  	return now > self.endTime;
+    return now > self.endTime;
   }
 
   /// @dev function to check if a purchase is valid
@@ -236,7 +236,7 @@ library CrowdsaleLib {
   /// @param _newPrice new token price (amount of tokens per ether)
   /// @return true if the token price changed successfully
   function changeTokenPrice(CrowdsaleStorage storage self,uint256 _newPrice) internal returns (bool) {
-  	require(_newPrice > 0);
+    require(_newPrice > 0);
 
     uint256 result;
     bool err;
@@ -244,7 +244,7 @@ library CrowdsaleLib {
     (err,result) = self.exchangeRate.dividedBy(_newPrice);
     require(!err);
 
-  	self.tokensPerEth = result + 1;
+    self.tokensPerEth = result + 1;
     return true;
   }
 
