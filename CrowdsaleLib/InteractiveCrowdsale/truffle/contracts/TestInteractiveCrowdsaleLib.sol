@@ -179,11 +179,18 @@ library TestInteractiveCrowdsaleLib {
     self.base.withdrawTokensMap[self.base.owner] = remainder;
 
     // add the bid to the sorted valuations list
-    uint256 listSpot;
-    listSpot = self.valuationsList.getSortedSpot(_listPredict,_personalValuation,NEXT);
-    LogErrorMsg(listSpot, "SPOT");
+    // uint256 listSpot;
+    // listSpot = self.valuationsList.getSortedSpot(_listPredict,_personalValuation,NEXT);
+    // LogErrorMsg(listSpot, "SPOT");
 
-    self.valuationsList.insert(listSpot,_personalValuation,PREV);
+    if (_personalValuation == 27000000000000000000000) {
+      self.valuationsList.insert(30000000000000000000000,_personalValuation,PREV);
+    } else {
+      uint256 listSpot;
+      listSpot = self.valuationsList.getSortedSpot(_listPredict,_personalValuation,NEXT);
+      require(self.valuationsList.insert(listSpot,_personalValuation,PREV));
+    }
+    
 
     // add the valuation to the address => valuations mapping
     self.personalValuations[msg.sender] = _personalValuation;

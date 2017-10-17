@@ -41,11 +41,6 @@ library LinkedListLib {
         mapping (uint256 => mapping (bool => uint256)) list;
     }
 
-    // function init(LinkedList storage self) internal {
-    //     self.list[HEAD][PREV] = 0;
-    //     self.list[HEAD][NEXT] = 0;
-    // }
-
     /// @dev returns true if the list exists
     /// @param self stored linked list from contract
     function exists(LinkedList storage self)
@@ -141,11 +136,14 @@ library LinkedListLib {
     /// @param _node existing node
     /// @param _new  new node to insert
     /// @param _direction direction to insert node in
-    function insert(LinkedList storage self, uint256 _node, uint256 _new, bool _direction) internal  {
-        if(!nodeExists(self,_new)) {
+    function insert(LinkedList storage self, uint256 _node, uint256 _new, bool _direction) internal returns (bool) {
+        if(!nodeExists(self,_new) && nodeExists(self,_node)) {
             uint256 c = self.list[_node][_direction];
             createLink(self, _node, _new, _direction);
             createLink(self, _new, c, _direction);
+            return true
+        } else {
+            return false;
         }
     }
     

@@ -137,8 +137,35 @@ contract('TimeInteractiveCrowdsaleTestContract', (accounts) => {
 
     totalVal = await c.getTotalValuation.call();
     assert.equal(totalVal.valueOf(),1.3e22, "The total valuation of the sale should be 1.1e22");
-  });
 
+    await c.submitBid(3e22,0, 110, {from:accounts[4], value: 4e21});
+
+    valuation = await c.getPersonalValuation.call(accounts[4]);
+    assert.equal(valuation.valueOf(), 3e22, "accounts[4]'s personal valuation should be 3e22");
+
+    atVal = await c.isBidderAtValuation.call(3e22,accounts[4]);
+    assert.equal(atVal,true, "accounts[3] should be listed at the 3e22 personal valuation");
+
+    totalVal = await c.getTotalValuation.call();
+    assert.equal(totalVal.valueOf(),1.7e22, "The total valuation of the sale should be 1.1e22");
+
+    await c.submitBid(2.7e22,0, 110, {from:accounts[0], value: 5e21});
+
+    valuation = await c.getPersonalValuation.call(accounts[0]);
+    assert.equal(valuation.valueOf(), 2.7e22, "accounts[4]'s personal valuation should be 2.7e22");
+
+    atVal = await c.isBidderAtValuation.call(2.7e22,accounts[0]);
+    assert.equal(atVal,true, "accounts[0] should be listed at the 2.7e22 personal valuation");
+
+    totalVal = await c.getTotalValuation.call();
+    assert.equal(totalVal.valueOf(),1.5E22, "The total valuation of the sale should be 1.5e22");
+
+    var contribution = await c.getContribution.call(accounts[1]);
+    assert.equal(contribution.valueOf(),4.090909091E21, "accounts1's contribution should have been decreased!");
+
+    contribution = await c.getContribution.call(accounts[2]);
+    assert.equal(contribution.valueOf(),4.909090909E21, "accounts2's contribution should have been decreased!");
+  });
 });
 
 //   it("should deny invalid payments during the sale and accept payments that are reflected in token balance", function() {
